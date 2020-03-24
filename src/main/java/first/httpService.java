@@ -121,7 +121,6 @@ public class httpService {
 			try (OutputStream os = conn.getOutputStream()){
 				os.write(body.getBytes());
 			}
-			Thread.sleep(10000);
 			Reader reader = new InputStreamReader(conn.getInputStream());
 			String retour="";
 			while (true) {
@@ -184,8 +183,20 @@ public JSONObject addFunctionMetadataToFirst(String md5, String crc32, functionM
 			try (OutputStream os = conn.getOutputStream()){
 				os.write(body.getBytes());
 			}
-
-			Reader reader = new InputStreamReader(conn.getInputStream());
+			if (conn.getResponseCode() != 200) {
+                		Reader error = new InputStreamReader(conn.getErrorStream());
+                		String stk = "";
+                		while (true) {
+                    			int ch = error.read();
+                    			if (ch == -1) {
+                        			break;
+                    			}
+                    			stk += (char) ch;
+                		}
+                		out.println(stk);
+            		}
+            		InputStream s = conn.getInputStream();
+            		Reader reader = new InputStreamReader(s);
 			String retour="";
 			while (true) {
 				int ch = reader.read();
