@@ -19,21 +19,15 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.security.MessageDigest;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-
+import java.util.zip.CRC32;
+import java.util.zip.Checksum;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
-
 import org.json.*;
-
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
- 
 import docking.ActionContext;
 import docking.ComponentProvider;
 import docking.action.DockingAction;
@@ -44,11 +38,7 @@ import ghidra.app.plugin.PluginCategoryNames;
 import ghidra.app.plugin.ProgramPlugin;
 import ghidra.framework.plugintool.*;
 import ghidra.framework.plugintool.util.PluginStatus;
-import ghidra.program.model.listing.Function;
-import ghidra.program.model.listing.FunctionIterator;
-import ghidra.program.model.listing.FunctionManager;
-import ghidra.program.model.listing.Listing;
-import ghidra.program.model.listing.Program;
+import ghidra.program.model.address.AddressSetView;
 import ghidra.util.HelpLocation;
 import ghidra.util.Msg;
 import resources.Icons;
@@ -61,7 +51,7 @@ import resources.Icons;
 	status = PluginStatus.STABLE,
 	packageName = ExamplesPluginPackage.NAME,
 	category = PluginCategoryNames.EXAMPLES,
-	shortDescription = "Plugin short description goes here.",
+	shortDescription = "First is a plugin to check/ add function to database First .",
 	description = "Plugin long description goes here."
 )
 //@formatter:on
@@ -71,6 +61,7 @@ public class FirstPlugin extends ProgramPlugin  {
 	
 	  static ArrayList<modelFunction > aList =  
               new ArrayList<modelFunction >(); 
+              private static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
 
 	/**
 	 * Plugin constructor.
@@ -104,7 +95,6 @@ public class FirstPlugin extends ProgramPlugin  {
 		private JPanel panel;
 		private DockingAction action;
 		private JButton loadFunctions;
-
 	    private JTable table;
 		private DefaultTableModel tableModel;
 	    private JPopupMenu popupMenu;
@@ -120,18 +110,10 @@ public class FirstPlugin extends ProgramPlugin  {
 			buildPanel();
 			createActions();
 		
-		}
-		
-
-		
+		}	
 		// Customize GUI
 		private void buildPanel() {
-			panel = new JPanel(new BorderLayout());
-			
-		//	JTextArea textArea = new JTextArea(5, 25);
-			//textArea.setEditable(false);
-		//	panel.add(new JScrollPane(textArea));
-			
+			 panel = new JPanel(new BorderLayout());
 			 popupMenu = new JPopupMenu();
 			 menuItemAdd = new JMenuItem("Add to First");
 			 menuItemCheck = new JMenuItem("Check From First");
@@ -141,12 +123,12 @@ public class FirstPlugin extends ProgramPlugin  {
 			 menuItemRemoveAll = new JMenuItem("Remove All");
 
 			 
-	        menuItemAdd.addActionListener((ActionListener) this);
-	        menuItemCheck.addActionListener((ActionListener) this);
-	        menuItemShowDetails.addActionListener((ActionListener) this);
-	        menuItemColor.addActionListener((ActionListener) this);
-	        menuItemRemove.addActionListener((ActionListener) this);
-	        menuItemRemoveAll.addActionListener((ActionListener) this);
+	        menuItemAdd.addActionListener(this);
+	        menuItemCheck.addActionListener(this);
+	        menuItemShowDetails.addActionListener(this);
+	        menuItemColor.addActionListener(this);
+	        menuItemRemove.addActionListener(this);
+	        menuItemRemoveAll.addActionListener(this);
 	        
 			popupMenu.add(menuItemAdd);
 			popupMenu.add(menuItemCheck);
@@ -159,45 +141,10 @@ public class FirstPlugin extends ProgramPlugin  {
 			panel.setBorder(BorderFactory.createTitledBorder( BorderFactory.createEtchedBorder(), "Functions List", TitledBorder.CENTER, TitledBorder.TOP));
 			loadFunctions = new JButton("Load Functions");
 			loadFunctions.setBounds(50,100,95,30);  
+			loadFunctions.addActionListener(this);	
+			populateTable();
 			
-			loadFunctions.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						PopulateFunctions pf =new PopulateFunctions();	
-			        	try {
-							pf.run();		
-							
-							 aList= pf.getFuntions();  
-							// removeAllRows();
-							 refresh();
-							 tableModel.fireTableDataChanged();
-					    	 table.repaint();
-					    	// provider = new MyProvider(this, pluginName);
-							 buildPanel();
-						} catch (Exception ex) {
-							// TODO Auto-generated catch block
-							ex.printStackTrace();
-						}
-						
-					}
-				});
-		
-			String[] header = { "Id", "Prototype", "HashCode" };
-			//PopulateFunctionsFromGhidra(aList);	
 			
-
-        	//tableModel= (DefaultTableModel) table.getModel();
-			Object[][] fileList = new Object[aList.size()][3];
-
-			for (int i = 0; i < aList.size(); i++) {
-			    fileList [i][0] = aList.get(i).id;
-			    fileList [i][1] = aList.get(i).name;
-			    fileList [i][2] = aList.get(i).hashCode;
-			    
-			    
-			}		
-			 
-			tableModel = new DefaultTableModel(fileList, header); 
-			table = new JTable(tableModel);
 			JTableHeader headerlabel = table.getTableHeader();
 			headerlabel.setBackground(Color.BLACK);
 			headerlabel.setForeground(Color.BLUE);	
@@ -211,13 +158,30 @@ public class FirstPlugin extends ProgramPlugin  {
 			setVisible(true);
 		}		
 		
-	
+	public void  populateTable()
+	{
+		String[] header = { "Id", "Name", "Opcode","Prototype","Comment" };
+		
+		Object[][] fileList = new Object[aList.size()][5];
+
+		for (int i = 0; i < aList.size(); i++) {
+		    fileList [i][0] = aList.get(i).idfunction;
+		    fileList [i][1] = aList.get(i).namefunction;
+		    fileList [i][2] = aList.get(i).bodyfunction;
+		    fileList [i][3] = aList.get(i).prototypefunction;
+		    fileList [i][4] = aList.get(i).comment;	 
+		    }		
+		 
+		tableModel = new DefaultTableModel(fileList, header); 
+		//table.setModel(tableModel);
+		table = new JTable(tableModel);
+	}
 		// TODO: Customize actions
 		private void createActions() {
 			action = new DockingAction("My Action", getName()) {
 				@Override
 				public void actionPerformed(ActionContext context) {
-					//Msg.showInfo(getClass(), panel, "Custom Action", "Hello!");      	
+					Msg.showInfo(getClass(), panel, "Custom Action", "Hello!");      	
 				}
 			};
 			action.setToolBarData(new ToolBarData(Icons.ADD_ICON, null));
@@ -234,8 +198,32 @@ public class FirstPlugin extends ProgramPlugin  {
 		
 	    public void actionPerformed(ActionEvent event) {
 	    	
-	        JMenuItem menu = (JMenuItem) event.getSource();
-	        if (menu == menuItemAdd) {
+	        Object  menu =  event.getSource();
+	        if (menu ==loadFunctions)
+	        {
+	        	
+					PopulateFunctions pf =new PopulateFunctions();	
+		        	try {
+						pf.run();		
+						
+						 aList= pf.getFuntions();
+						
+
+						// tableModel.fireTableDataChanged();
+						// populateTable();
+						// table.repaint();
+				    	 //table.repaint();
+				    	// provider = new MyProvider(this, pluginName);
+						buildPanel();
+				    	 
+					} catch (Exception ex) {
+						// TODO Auto-generated catch block
+						ex.printStackTrace();
+					}
+					
+				}
+	    
+	    else  if (menu == menuItemAdd) {
 	           try {
 				addNewRow();
 			} catch (Exception e) {
@@ -266,20 +254,49 @@ public class FirstPlugin extends ProgramPlugin  {
 	    }
 
 	    private void refresh() {
-	    	tableModel.fireTableDataChanged();
-	    	 table.repaint();
+	    	 
+	  	          tableModel.fireTableDataChanged();  	        
+	  	    
 	    }
+	    
 	    private void checkFunctionFirst() throws Exception {
 	    	int selectedRow = table.getSelectedRow();
-	    	var name =tableModel.getValueAt(selectedRow, 1);
-	    	httpService myService = new httpService("https://louishusson.com/api/", "BFBFC6FC-4C84-4299-B2F6-7335C479810D");
-			JSONObject result = myService.checkInFirst("1b3105ada011ed1053739d9c6028b3cc","1272189608");
-			if(result.getBoolean("failed")==false) {
-				System.out.println("Request Success");
-				System.out.println("checkin = " + result.get("checkin"));
-			}
+	    	String opCodeFunction =tableModel.getValueAt(selectedRow, 1).toString();	
+	    	AddressSetView adressSetView = (AddressSetView) tableModel.getValueAt(selectedRow,2);	
+	    	//Calcul the md5 of an opcode   
+	    	MessageDigest messageDigest = MessageDigest.getInstance("MD5");
+	    	messageDigest.update(opCodeFunction.getBytes());
+	    	byte[] digiest = messageDigest.digest();
+	    	char[] hexChars = new char[digiest.length * 2];
+	    	for (int j = 0; j < digiest.length; j++) {
+	    		int v = digiest[j] & 0xFF;
+	    		hexChars[j * 2] = HEX_ARRAY[v >>> 4];
+	    		hexChars[j * 2 + 1] = HEX_ARRAY[v & 0x0F];
+	    		
+	    	}
+	    	String md5Function = String.valueOf(hexChars);
+	    	System.out.println(md5Function);
+	    	
+	    	//calcul crc32 d'un opCode
+	    	byte[] bytes = opCodeFunction.getBytes();
+	        Checksum checksum = new CRC32(); // java.util.zip.CRC32
+	        checksum.update(bytes, 0, bytes.length);
+	        //System.out.println(checksum.getValue());
+	      
+	       String crc32 = String.valueOf(checksum.getValue()); 
+	       httpService myService = new httpService("https://louishusson.com/api/", "BFBFC6FC-4C84-4299-B2F6-7335C479810D");
+	       JSONObject result = myService.checkInFirst(md5Function,crc32);
+			if(result.getBoolean("failed")==false) {  
+				//System.out.println("Request Success");
+				//System.out.println("checkin = " + result.get("checkin"));
+				Msg.showInfo(getClass(), panel, "Check First", " Request : Success \n Checking : " +result.get("checkin"));
+				//SetColorCommand sc = new SetColorCommand(new Color(255, 200, 200), current, adressSetView);
+				///sc.applyTo(obj)
+				//SetColorCommand..setBackgroundColor(adressSetView , new Color(255, 200, 200));	
+				}
 			else
-				System.out.println("Request failed");
+				//System.out.println("Request failed");
+			Msg.showError(getClass(), panel,  "Check First", "Request : Failed");
 	    }
 	    private void addNewRow() throws Exception {
 	       // tableModel.addRow(new String[0]);	    	
