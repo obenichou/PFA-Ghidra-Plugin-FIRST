@@ -1,18 +1,23 @@
 package first;
-import ghidra.pcode.*;
+
+import ghidra.pcode.loadimage.LoadImage;
+
+import java.io.IOException;
+import java.util.ArrayList;
 
 import ghidra.app.script.GhidraScript;
 import ghidra.feature.fid.service.FidService;
 import ghidra.framework.model.DomainFile;
 import ghidra.framework.model.DomainFolder;
 import ghidra.program.database.ProgramContentHandler;
-import ghidra.program.model.listing.*;
+import ghidra.program.model.address.AddressSetView;
+import ghidra.program.model.listing.Function;
+import ghidra.program.model.listing.FunctionIterator;
+import ghidra.program.model.listing.FunctionManager;
+import ghidra.program.model.listing.Program;
 import ghidra.util.Msg;
 import ghidra.util.exception.CancelledException;
 import ghidra.util.exception.VersionException;
-
-import java.io.IOException;
-import java.util.ArrayList;
 
 public class PopulateFunctions extends GhidraScript {
 
@@ -24,8 +29,8 @@ public class PopulateFunctions extends GhidraScript {
     // Here aList is an ArrayList of ArrayLists 
     ArrayList<modelFunction > aList =  
               new ArrayList<modelFunction>(); 	 
-	
-
+           
+              
 	@Override
 	protected void run() throws Exception {
 		service = new FidService();
@@ -60,13 +65,16 @@ public class PopulateFunctions extends GhidraScript {
 					if (function!=null) {
 						//test= test + function.getName();
 						//println("found " + function.getName() + " in " + domainFile.getPathname());						
-						modelFunction a1 = new modelFunction(function.getName(),function.getID(),function.hashCode()); 
-					        				      
+						modelFunction a1 = new modelFunction(String.valueOf(function.getID()),function.getName(),function.getBody(),function.getPrototypeString(true, true),function.getComment()); 
+						byte [] buf= null;
+						int size =4096;
+						 
+				//	byte[] ee=	 cli.loadFill(buf, size, function.getBody().getMinAddress(), function.getBody().getNumAddressRanges(), false );
+  
 					        aList.add(a1);
-					        var test = function.getBody();
 					      
 						 }		
-					  int zz =2;
+					
 				}
 				
 			}
@@ -102,19 +110,30 @@ public class PopulateFunctions extends GhidraScript {
 	}
 	
 	public class modelFunction{
+
+		public String  idfunction;
+		public String namefunction;	
+		public AddressSetView bodyfunction;
+		public String prototypefunction;	
+		public String comment;	
+
 		
-		public String name;
-		public int hashCode;
-		public long  id;
-		
-		public modelFunction(String Fname,long Fid, int HashCode) {
-		
-			this.name = Fname;
-			this.hashCode =HashCode;
-			this.id =Fid;
+		public modelFunction(String Fid, String functionName, AddressSetView bodyFunction, String prototypeFunction, String commentFunction){
+			this.idfunction =Fid;
+			this.namefunction = functionName;
+			this.bodyfunction =bodyFunction;
+			this.prototypefunction =prototypeFunction;
+			this.comment =commentFunction;
+
+			
 			
 			
 		}
+
+
+		
+
+		
 		}
 		
 	
