@@ -17,6 +17,7 @@ package first;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.security.MessageDigest;
@@ -38,7 +39,6 @@ import ghidra.app.plugin.PluginCategoryNames;
 import ghidra.app.plugin.ProgramPlugin;
 import ghidra.framework.plugintool.*;
 import ghidra.framework.plugintool.util.PluginStatus;
-import ghidra.program.model.address.AddressSetView;
 import ghidra.util.HelpLocation;
 import ghidra.util.Msg;
 import resources.Icons;
@@ -58,10 +58,11 @@ import resources.Icons;
 public class FirstPlugin extends ProgramPlugin  {
 
 	MyProvider provider;
-	
-	  static ArrayList<modelFunction > aList =  
-              new ArrayList<modelFunction >(); 
-              private static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
+	static ArrayList<modelFunction > aList =    new ArrayList<modelFunction >(); 
+	static String url =new String();
+	static String apiKey = new String();            
+	private static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
+	//  httpService myService = new httpService("https://louishusson.com/api/", "BFBFC6FC-4C84-4299-B2F6-7335C479810D");
 
 	/**
 	 * Plugin constructor.
@@ -97,6 +98,17 @@ public class FirstPlugin extends ProgramPlugin  {
 		private JButton loadFunctions;
 	    private JTable table;
 		private DefaultTableModel tableModel;
+
+		private JFrame frame;
+		private JButton LoginButton;
+	    private JButton CancelButton;
+	    private JLabel UrlButton;
+	    private JLabel ApiKey;
+	    private JTextField UrlField;
+	    private JTextField ApiKeyField;
+	    
+	
+		
 	    private JPopupMenu popupMenu;
 	    private JMenuItem menuItemAdd;
 	    private JMenuItem menuItemCheck;
@@ -111,6 +123,46 @@ public class FirstPlugin extends ProgramPlugin  {
 			createActions();
 		
 		}	
+		private void buildForm() {
+
+	    	frame = new JFrame ("Connect to First Server");	    	
+	        LoginButton = new JButton ("Login");
+	        
+	        CancelButton = new JButton ("Cancel");
+	        UrlButton = new JLabel ("Url ");
+	        ApiKey = new JLabel ("ApiKey");
+	        UrlField = new JTextField (11);
+	        ApiKeyField = new JTextField (11);
+	        
+	    
+	        
+	        //adjust size and set layout
+	        frame.setPreferredSize(new Dimension (624, 334));
+	        frame.setLayout (null);
+
+	        //add components
+	        frame.add(LoginButton);
+	        frame.add(CancelButton);
+	        frame.add(UrlButton);
+	        frame.add(ApiKey);
+	        frame.add(UrlField);
+	        frame.add(ApiKeyField);
+
+	        //set component bounds (only needed by Absolute Positioning)
+	        LoginButton.setBounds (185, 155, 115, 30);
+	        CancelButton.setBounds (360, 155, 105, 30);
+	        UrlButton.setBounds (60, 60, 100, 25);
+	        ApiKey.setBounds (50, 110, 100, 25);
+	        UrlField.setBounds (120, 60, 405, 30);
+	        ApiKeyField.setBounds (120, 105, 405, 30);
+	      
+	        frame.pack();
+	        frame.setVisible (true);
+	        LoginButton.addActionListener(this) ;
+				
+	        CancelButton.addActionListener(this); 
+			
+		}
 		// Customize GUI
 		private void buildPanel() {
 			 panel = new JPanel(new BorderLayout());
@@ -165,6 +217,7 @@ public class FirstPlugin extends ProgramPlugin  {
 		Object[][] fileList = new Object[aList.size()][5];
 
 		for (int i = 0; i < aList.size(); i++) {
+			
 		    fileList [i][0] = aList.get(i).idfunction;
 		    fileList [i][1] = aList.get(i).namefunction;
 		    fileList [i][2] = aList.get(i).bodyfunction;
@@ -173,7 +226,6 @@ public class FirstPlugin extends ProgramPlugin  {
 		    }		
 		 
 		tableModel = new DefaultTableModel(fileList, header); 
-		//table.setModel(tableModel);
 		table = new JTable(tableModel);
 	}
 		// TODO: Customize actions
@@ -181,7 +233,7 @@ public class FirstPlugin extends ProgramPlugin  {
 			action = new DockingAction("My Action", getName()) {
 				@Override
 				public void actionPerformed(ActionContext context) {
-					Msg.showInfo(getClass(), panel, "Custom Action", "Hello!");      	
+					buildForm();
 				}
 			};
 			action.setToolBarData(new ToolBarData(Icons.ADD_ICON, null));
@@ -195,75 +247,79 @@ public class FirstPlugin extends ProgramPlugin  {
 			return panel;
 		}
 		
-		
-	    public void actionPerformed(ActionEvent event) {
-	    	
-	        Object  menu =  event.getSource();
-	        if (menu ==loadFunctions)
+	    public void actionPerformed(ActionEvent event) {	    	
+	        Object  object =  event.getSource();
+	        if (object ==loadFunctions)
 	        {
-	        	
-					PopulateFunctions pf =new PopulateFunctions();	
-		        	try {
-						pf.run();		
-						
-						 aList= pf.getFuntions();
-						
-
-						// tableModel.fireTableDataChanged();
-						// populateTable();
-						// table.repaint();
-				    	 //table.repaint();
-				    	// provider = new MyProvider(this, pluginName);
-						buildPanel();
-				    	 
-					} catch (Exception ex) {
-						// TODO Auto-generated catch block
-						ex.printStackTrace();
-					}
-					
-				}
-	    
-	    else  if (menu == menuItemAdd) {
+	        	PopulateFunctions pf =new PopulateFunctions();
+	        	try {
+	        		pf.run();	
+	        		aList= pf.getFuntions();
+	        		buildPanel();
+	        		} catch (Exception ex) {
+	        			ex.printStackTrace();
+	        			}		
+	        	}
+	        else if (object == LoginButton)
+	        {
+	            url = new String (UrlField.getText());
+		        apiKey = new String( ApiKeyField.getText());
+		        httpService myService = new httpService(url, apiKey);
+		        try {
+		        	JSONObject connectionStatus = myService.testConnection();
+		        	String statusValue =connectionStatus.get("status").toString();
+		        	if (statusValue.equalsIgnoreCase("CONNECTED"))
+		        	{
+		        		Msg.showInfo(getClass(), panel, "Connection to First API", "Connection : " + statusValue);
+		        		frame.setVisible(false);
+		        	}
+		        	else 
+		        		Msg.showError(getClass(), panel, "Connection to First API", "Connection : " + statusValue);		        	
+		        	
+				} catch (Exception exception) {
+					exception.printStackTrace();
+				}  	
+	        }
+	        else  if (object == CancelButton)
+	        {
+	        	frame.setVisible(false);
+	        }
+	        else  if (object == menuItemAdd) {
 	           try {
 				addNewRow();
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-	        	//Msg.showInfo(getClass(), panel, "Custom Action", "menuItemAdd!");
-	        } else if (menu == menuItemCheck) {
+	        	
+	        } else if (object == menuItemCheck) {
 	        	try {
 					checkFunctionFirst();
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}        
 
-	        } else if (menu == menuItemShowDetails) {
+	        } else if (object == menuItemShowDetails) {
 	        	Msg.showInfo(getClass(), panel, "Custom Action", "menuItemShowDetails!");
-	        } else if (menu == menuItemColor) {
+	        } else if (object == menuItemColor) {
 	        	Msg.showInfo(getClass(), panel, "Custom Action", "menuItemColor!");
 	        }
-	        else if (menu == menuItemRemove) {
+	        else if (object == menuItemRemove) {
 	        	removeCurrentRow();
 	        }
-	        else if (menu == menuItemRemoveAll) {
+	        else if (object == menuItemRemoveAll) {
 	        	removeAllRows(); 
 	        }        
 	        
 	    }
 
 	    private void refresh() {
-	    	 
-	  	          tableModel.fireTableDataChanged();  	        
-	  	    
-	    }
+	  	          tableModel.fireTableDataChanged();
+	  	          }
 	    
 	    private void checkFunctionFirst() throws Exception {
 	    	int selectedRow = table.getSelectedRow();
 	    	String opCodeFunction =tableModel.getValueAt(selectedRow, 1).toString();	
-	    	AddressSetView adressSetView = (AddressSetView) tableModel.getValueAt(selectedRow,2);	
-	    	//Calcul the md5 of an opcode   
+	    	//AddressSetView adressSetView = (AddressSetView) tableModel.getValueAt(selectedRow,2);	 
 	    	MessageDigest messageDigest = MessageDigest.getInstance("MD5");
 	    	messageDigest.update(opCodeFunction.getBytes());
 	    	byte[] digiest = messageDigest.digest();
@@ -271,31 +327,22 @@ public class FirstPlugin extends ProgramPlugin  {
 	    	for (int j = 0; j < digiest.length; j++) {
 	    		int v = digiest[j] & 0xFF;
 	    		hexChars[j * 2] = HEX_ARRAY[v >>> 4];
-	    		hexChars[j * 2 + 1] = HEX_ARRAY[v & 0x0F];
-	    		
+	    		hexChars[j * 2 + 1] = HEX_ARRAY[v & 0x0F];		
 	    	}
-	    	String md5Function = String.valueOf(hexChars);
-	    	System.out.println(md5Function);
 	    	
-	    	//calcul crc32 d'un opCode
+	    	String md5Function = String.valueOf(hexChars);
+	    	System.out.println(md5Function);  
 	    	byte[] bytes = opCodeFunction.getBytes();
-	        Checksum checksum = new CRC32(); // java.util.zip.CRC32
+	        Checksum checksum = new CRC32(); 
 	        checksum.update(bytes, 0, bytes.length);
-	        //System.out.println(checksum.getValue());
-	      
-	       String crc32 = String.valueOf(checksum.getValue()); 
-	       httpService myService = new httpService("https://louishusson.com/api/", "BFBFC6FC-4C84-4299-B2F6-7335C479810D");
-	       JSONObject result = myService.checkInFirst(md5Function,crc32);
-			if(result.getBoolean("failed")==false) {  
-				//System.out.println("Request Success");
-				//System.out.println("checkin = " + result.get("checkin"));
-				Msg.showInfo(getClass(), panel, "Check First", " Request : Success \n Checking : " +result.get("checkin"));
-				//SetColorCommand sc = new SetColorCommand(new Color(255, 200, 200), current, adressSetView);
-				///sc.applyTo(obj)
-				//SetColorCommand..setBackgroundColor(adressSetView , new Color(255, 200, 200));	
+	        String crc32 = String.valueOf(checksum.getValue()); 
+	        httpService myService = new httpService(url, apiKey);
+	        JSONObject result = myService.checkInFirst(md5Function,crc32);
+			if(result.getBoolean("failed")==false) { 
+				Msg.showInfo(getClass(), panel, "Check First", " Request : Success \n Checking : " +result.get("checkin"));				
 				}
 			else
-				//System.out.println("Request failed");
+				
 			Msg.showError(getClass(), panel,  "Check First", "Request : Failed");
 	    }
 	    private void addNewRow() throws Exception {
