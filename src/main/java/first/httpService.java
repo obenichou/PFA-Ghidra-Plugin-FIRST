@@ -92,12 +92,12 @@ public class httpService {
 	}
 
 	/**
-	 * checkInFirst is sending a CRC32 and a MD5 Hashes to the First Server. It check its existence and in case of a new couple, create it.
+	 * checkInSample is sending a CRC32 and a MD5 Hashes to the First Server. It check its existence and in case of a new couple, create it.
 	 * @param md5 MD5 Hash from the function.
 	 * @param crc32 CRC32 Hash from the function.
 	 * @return Return the Json replied by the First Server.
 	 */
-	public JSONObject checkInFirst(String md5, String crc32) {
+	public JSONObject checkInSample(String md5, String crc32) {
 		try {
 			// Set the API Rest Contact
 			URL url = new URL(this.apiUrl + "sample/checkin/" + this.apiKey);
@@ -206,17 +206,14 @@ public class httpService {
 
 	public static void main(String[] args) throws Exception {
 		httpService myService = new httpService("https://louishusson.com/api/", "BFBFC6FC-4C84-4299-B2F6-7335C479810D");
+		String md5 = "1b3105ada011ed1053739d9c6028b3cc";
+		String crc32 = "1272189608";
 		myService.noSSLVerification();
-		JSONObject result = myService.checkInFirst("1b3105ada011ed1053739d9c6028b3cc", "1272189608");
-//		if(result.getBoolean("failed")==false) {
-//			out.println("Request Success");
-//			out.println("checkin = " + result.get("checkin"));
-//		}
-//		else
-//			out.println("Request failed");
+		JSONObject result = myService.checkInSample(md5, crc32);
+		out.println("CheckInSample: " + result.toString());;
 		List<String> apis = Arrays.asList("tutu", "tata");
 		functionMetadata testFunction = new functionMetadata("02281400000a2a1e", "architecture", ".ctor-6_8746", "prototype", "comment", apis, "id");
-		JSONObject resultat = myService.addFunctionMetadata("1b3105ada011ed1053739d9c6028bfcc", "1272189678", testFunction);
-		out.println(resultat.toString());
+		result = myService.addFunctionMetadata(md5, crc32/*"1b3105ada011ed1053739d9c6028bfcc", "1272189678"*/, testFunction);
+		out.println("AddFunctionMetadata: " + result.toString());
 	}
 }
