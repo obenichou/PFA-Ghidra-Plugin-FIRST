@@ -22,7 +22,13 @@ public class functionMetadata {
 		this.id=id;
 	}
 
-	
+	public String getAPIS() {
+        	String answer = "[";
+        	for (int i = 0; i < this.apis.size(); i++) {
+            		answer += "\"" + this.apis.get(i) + "\",";
+        	}
+        	return answer.substring(0, answer.length() - 1) + "]";
+    	}
 	
 
 }
