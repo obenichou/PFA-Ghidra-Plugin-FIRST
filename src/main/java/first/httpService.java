@@ -1,5 +1,3 @@
-package first;
-
 import java.net.*;
 import java.net.URL;
 import java.nio.charset.Charset;
@@ -34,7 +32,7 @@ public class httpService {
 	public JSONObject testConnection() throws Exception {
 
 		TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
-			public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+			public X509Certificate[] getAcceptedIssuers() {
 				return null;
 			}
 
@@ -87,7 +85,7 @@ public class httpService {
 	public JSONObject checkInFirst(String md5, String crc32) throws Exception  {
 		
 		TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
-			public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+			public X509Certificate[] getAcceptedIssuers() {
 				return null;
 			}
 
@@ -147,7 +145,7 @@ public class httpService {
 public JSONObject addFunctionMetadataToFirst(String md5, String crc32, functionMetadata clientId) throws Exception  {
 		
 		TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
-			public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+			public X509Certificate[] getAcceptedIssuers() {
 				return null;
 			}
 
@@ -181,37 +179,40 @@ public JSONObject addFunctionMetadataToFirst(String md5, String crc32, functionM
 			conn.setRequestProperty("Accept-Charset", charset.toString());
 			conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded;charset=" + charset.toString());
 			
-            		String body ="md5=" + md5 + "&crc32=" + crc32 + "&functions={\"client_id\":{\"opcodes\":\"" + clientId.opcodes + "\",\"architecture\":\"" + clientId.architecture + "\",\"name\":\"" + clientId.name + "\",\"prototype\":\"" + clientId.prototype + "\",\"comment\":\"" + clientId.comment + "\",\"apis\":" + clientId.getAPIS() + ",\"id\":\"" + clientId.id +"\"}}" ;
-			out.println(body);
-			
+			String body = "md5=" + md5 + "&crc32=" + crc32 + "&functions=" + clientId.jsonObject.toString();
+
 			try (OutputStream os = conn.getOutputStream()){
 				os.write(body.getBytes());
 			}
 			if (conn.getResponseCode() != 200) {
-                		Reader error = new InputStreamReader(conn.getErrorStream());
-                		String stk = "";
-                		while (true) {
-                    			int ch = error.read();
-                    			if (ch == -1) {
-                        			break;
-                    			}
-                    			stk += (char) ch;
-                		}
-                		out.println(stk);
-            		}
-            		InputStream s = conn.getInputStream();
-            		Reader reader = new InputStreamReader(s);
-			String retour="";
-			while (true) {
-				int ch = reader.read();
-				if (ch == -1) {
-					break;
-				}
-				retour+=(char)ch;
+				Reader errorStream = new InputStreamReader(conn.getErrorStream());
+                String stk = "";
+                while (true) {
+                	int ch = errorStream.read();
+                	if (ch == -1) {
+                		break;
+                	}
+                	stk += (char) ch;
+                }
+                out.println(stk);
+                JSONObject error = new JSONObject("{\"failed\": true, \"Error Code\":" + String.valueOf(conn.getResponseCode()) + "}");
+                return error;
 			}
+			else {
+				InputStream s = conn.getInputStream();
+				Reader reader = new InputStreamReader(s);
+				String retour = "";
+				while (true) {
+					int ch = reader.read();
+					if (ch == -1) {
+						break;
+					}
+					retour += (char) ch;
+				}
 
-			JSONObject result = new JSONObject(retour);
-			return result;
+				JSONObject result = new JSONObject(retour);
+				return result;
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			JSONObject error = new JSONObject("{\"failed\": true}");
@@ -231,7 +232,7 @@ public JSONObject addFunctionMetadataToFirst(String md5, String crc32, functionM
 //		else
 //			out.println("Request failed");
 		List<String> apis = Arrays.asList("tutu", "tata");
-		functionMetadata testFunction = new functionMetadata("02281400000a2a5e","architecture", ".ctor-6_8746", "prototype","comment", apis, "id");
+		functionMetadata testFunction = new functionMetadata("02281400000a2a1e","architecture", ".ctor-6_8746", "prototype","comment", apis, "id");
 		JSONObject resultat = myService.addFunctionMetadataToFirst("1b3105ada011ed1053739d9c6028bfcc","1272189678", testFunction);
 		out.println(resultat.toString());
 	}
