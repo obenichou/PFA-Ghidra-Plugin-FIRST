@@ -15,6 +15,7 @@ import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 
@@ -71,7 +72,7 @@ public class httpService {
 	 * testConnection is calling the First Server to check if the User Token is correct.
 	 * @return Return the Json replied by the First Server.
 	 */
-	public JSONObject testConnection() {
+	public JSONObject testConnection() throws JSONException {
 		try {
 			// Set the API Rest Contact
 			URL url = new URL(this.apiUrl + "test_connection/" + this.apiKey);
@@ -97,29 +98,19 @@ public class httpService {
 	 * @param crc32 CRC32 Hash from the function.
 	 * @return Return the Json replied by the First Server.
 	 */
-	public JSONObject checkInSample(String md5, String crc32) {
+	public JSONObject checkInSample(String md5, String crc32) throws JSONException {
 		try {
 			// Set the API Rest Contact
 			URL url = new URL(this.apiUrl + "sample/checkin/" + this.apiKey);
-			Charset charset = StandardCharsets.UTF_8;
-			HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
-			// Setup POST request
-			conn.setDoOutput(true);
-			conn.setRequestProperty("Accept-Charset", charset.toString());
-			conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded;charset=" + charset.toString());
 
 			// HTML body builder
 			String body = "md5=" + md5 + "&crc32=" + crc32;
-
-			// Adding HTML body to the POST
-			OutputStream os = conn.getOutputStream();
-			os.write(body.getBytes());
+			HttpsURLConnection conn = this.configPost(url, body);
 
 			// Return the answer from the Server in a JSON Format
 			return returnResponse(conn);
 		} catch (Exception e) {
 			e.printStackTrace();
-
 			// In case of exception, return the Error JSON
 			JSONObject error = new JSONObject("{\"failed\": true}");
 			return error;
@@ -133,23 +124,15 @@ public class httpService {
 	 * @param clientId Contains the metadata to add to the function.
 	 * @return Return the Json replied by the First Server.
 	 */
-	public JSONObject addFunctionMetadata(String md5, String crc32, functionMetadata clientId) {
+	public JSONObject addFunctionMetadata(String md5, String crc32, functionMetadata clientId) throws JSONException {
 		try {
 			// Set the API Rest Contact
 			URL url = new URL(this.apiUrl + "metadata/add/" + this.apiKey);
 			Charset charset = StandardCharsets.UTF_8;
-			HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
-			// Setup POST request
-			conn.setDoOutput(true);
-			conn.setRequestProperty("Accept-Charset", charset.toString());
-			conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded;charset=" + charset.toString());
 
 			// HTML body builder
 			String body = "md5=" + md5 + "&crc32=" + crc32 + "&functions=" + clientId.jsonObject.toString();
-
-			// Adding HTML body to the POST
-			OutputStream os = conn.getOutputStream();
-			os.write(body.getBytes());
+			HttpsURLConnection conn = this.configPost(url, body);
 
 			// Return the answer from the Server in a JSON Format
 			return returnResponse(conn);
@@ -163,13 +146,36 @@ public class httpService {
 	}
 
 	/**
+	 *
+	 * @param url URL with the token of the First Server
+	 * @param body Body to add to the post
+	 * @return Return the connection to treat the server reply
+	 * @throws IOException
+	 */
+	private HttpsURLConnection  configPost(URL url, String body) throws IOException {
+		// Set the API Rest Contact
+		Charset charset = StandardCharsets.UTF_8;
+		HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+		// Setup POST request
+		conn.setDoOutput(true);
+		conn.setRequestProperty("Accept-Charset", charset.toString());
+		conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded;charset=" + charset.toString());
+
+		// Adding HTML body to the POST
+		OutputStream os = conn.getOutputStream();
+		os.write(body.getBytes());
+
+		return conn;
+	}
+
+	/**
 	 * returnResponse interprets the response from the firstServer and Format it in JSON.
 	 * It is used in all other API request.
 	 * @param connection The Http(s) connection to the first Server, after the request sent.
 	 * @return Return the formatted Json replied by the First Server.
-	 * @throws IOException Manage by Function calling it.
+	 * @throws Exception Managed by Function calling it.
 	 */
-	private JSONObject returnResponse(HttpsURLConnection connection) throws IOException {
+	private JSONObject returnResponse(HttpsURLConnection connection) throws IOException, JSONException {
 	    // Check the HTTP Response Code from the server
 		if (connection.getResponseCode() != 200) {
 			// If not Succeeded, read the reply and print it
@@ -189,8 +195,7 @@ public class httpService {
 			return error;
 		} else {
 			// If 200(=Success), read the reply and add it into a JSON Object
-			InputStream s = connection.getInputStream();
-			Reader reader = new InputStreamReader(s);
+			Reader reader = new InputStreamReader(connection.getInputStream());
 			String obj = "";
 			while (true) {
 				int ch = reader.read();
@@ -206,10 +211,12 @@ public class httpService {
 
 	public static void main(String[] args) throws Exception {
 		httpService myService = new httpService("https://louishusson.com/api/", "BFBFC6FC-4C84-4299-B2F6-7335C479810D");
+		myService.noSSLVerification();
+		JSONObject result = myService.testConnection();
+		out.println("Test Connection " + result);
 		String md5 = "1b3105ada011ed1053739d9c6028b3cc";
 		String crc32 = "1272189608";
-		myService.noSSLVerification();
-		JSONObject result = myService.checkInSample(md5, crc32);
+		result = myService.checkInSample(md5, crc32);
 		out.println("CheckInSample: " + result.toString());;
 		List<String> apis = Arrays.asList("tutu", "tata");
 		functionMetadata testFunction = new functionMetadata("02281400000a2a1e", "architecture", ".ctor-6_8746", "prototype", "comment", apis, "id");
