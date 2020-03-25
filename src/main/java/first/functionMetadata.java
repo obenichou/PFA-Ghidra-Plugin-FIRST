@@ -27,8 +27,9 @@ public class functionMetadata {
 	 * @param comment
 	 * @param apis
 	 * @param id
+	 * @throws JSONException 
 	 */
-	public functionMetadata(String opcodes, String architecture, String name, String prototype, String comment, List<String> apis, String id) {
+	public functionMetadata(String opcodes, String architecture, String name, String prototype, String comment, List<String> apis, String id) throws JSONException {
 		this.opcodes=opcodes;
 		this.architecture=architecture;
 		this.name=name;
@@ -48,15 +49,31 @@ public class functionMetadata {
 	 * @param prototype
 	 * @param comment
 	 * @param apis
+	 * @throws JSONException 
 	 */
-	public functionMetadata(String opcodes, String architecture, String name, String prototype, String comment, List<String> apis) {
+	public functionMetadata(String opcodes, String architecture, String name, String prototype, String comment, List<String> apis) throws JSONException {
 	    this(opcodes, architecture, name, prototype, comment, apis, "");
+	}
+	
+	/**
+	 * Class Builder without the optional id
+	 * @param opcodes
+	 * @param architecture
+	 * @param name
+	 * @param prototype
+	 * @param comment
+	 * @param apis
+	 * @throws JSONException 
+	 */
+	public functionMetadata(String opcodes, String architecture, List<String> apis) throws JSONException {
+	    this(opcodes, architecture, "", "", "", apis, "");
 	}
 
 	/**
 	 * jsonBuilder create the needed JSON to simplify AddFunctionMetadata
+	 * @throws JSONException 
 	 */
-	private void jsonBuilder(){
+	private void jsonBuilder() throws JSONException{
 		JSONObject jsonObject = new JSONObject();
 		jsonObject.put("opcodes", this.opcodes);
 		jsonObject.put("architecture", this.architecture);
