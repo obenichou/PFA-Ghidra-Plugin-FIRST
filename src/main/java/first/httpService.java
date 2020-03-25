@@ -177,7 +177,7 @@ public JSONObject addFunctionMetadataToFirst(String md5, String crc32, functionM
 			conn.setRequestProperty("Accept-Charset", charset.toString());
 			conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded;charset=" + charset.toString());
 			
-			String body ="md5=" + md5 + "&crc32=" + crc32 + "&functions={\"opcodes\":\"" + clientId.opcodes + "\",\"architecture\":\"" + clientId.architecture + "\",\"name\":\"" + clientId.name + "\",\"prototype\":\"" + clientId.prototype + "\",\"comment\":\"" + clientId.comment + "\",\"apis\":\"" + clientId.apis.toString() + "\",\"id\":\"" + clientId.id +"\"}" ;
+            		String body ="md5=" + md5 + "&crc32=" + crc32 + "&functions={\"client_id\":{\"opcodes\":\"" + clientId.opcodes + "\",\"architecture\":\"" + clientId.architecture + "\",\"name\":\"" + clientId.name + "\",\"prototype\":\"" + clientId.prototype + "\",\"comment\":\"" + clientId.comment + "\",\"apis\":" + clientId.getAPIS() + ",\"id\":\"" + clientId.id +"\"}}" ;
 			out.println(body);
 			
 			try (OutputStream os = conn.getOutputStream()){
