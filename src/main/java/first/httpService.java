@@ -97,6 +97,7 @@ public class httpService {
 	 * @param md5 MD5 Hash from the function.
 	 * @param crc32 CRC32 Hash from the function.
 	 * @return Return the Json replied by the First Server.
+	 * @throws JSONException 
 	 */
 	public JSONObject checkInSample(String md5, String crc32) throws JSONException {
 		try {
@@ -123,11 +124,41 @@ public class httpService {
 	 * @param crc32 CRC32 Hash from the function.
 	 * @param clientId Contains the metadata to add to the function.
 	 * @return Return the Json replied by the First Server.
+	 * @throws JSONException 
 	 */
 	public JSONObject addFunctionMetadata(String md5, String crc32, functionMetadata clientId) throws JSONException {
 		try {
 			// Set the API Rest Contact
 			URL url = new URL(this.apiUrl + "metadata/add/" + this.apiKey);
+			Charset charset = StandardCharsets.UTF_8;
+
+			// HTML body builder
+			String body = "md5=" + md5 + "&crc32=" + crc32 + "&functions=" + clientId.jsonObject.toString();
+			HttpsURLConnection conn = this.configPost(url, body);
+
+			// Return the answer from the Server in a JSON Format
+			return returnResponse(conn);
+		} catch (Exception e) {
+			e.printStackTrace();
+
+			// In case of exception, return the Error JSON
+			JSONObject error = new JSONObject("{\"failed\": true}");
+			return error;
+		}
+	}
+	
+	/**
+	 * addFunctionMetadata Queries FIRST for matches.
+	 * @param md5 MD5 Hash from the function.
+	 * @param crc32 CRC32 Hash from the function.
+	 * @param clientId Contains the metadata to scan for.
+	 * @return Return the Json replied by the First Server.
+	 * @throws JSONException 
+	 */
+	public JSONObject scanForSimilarFunction(String md5, String crc32, functionMetadata clientId) throws JSONException {
+		try {
+			// Set the API Rest Contact
+			URL url = new URL(this.apiUrl + "metadata/scan/" + this.apiKey);
 			Charset charset = StandardCharsets.UTF_8;
 
 			// HTML body builder
@@ -211,16 +242,17 @@ public class httpService {
 
 	public static void main(String[] args) throws Exception {
 		httpService myService = new httpService("https://louishusson.com/api/", "BFBFC6FC-4C84-4299-B2F6-7335C479810D");
-		myService.noSSLVerification();
-		JSONObject result = myService.testConnection();
-		out.println("Test Connection " + result);
 		String md5 = "1b3105ada011ed1053739d9c6028b3cc";
 		String crc32 = "1272189608";
-		result = myService.checkInSample(md5, crc32);
+		myService.noSSLVerification();
+		JSONObject result = myService.checkInSample(md5, crc32);
 		out.println("CheckInSample: " + result.toString());;
 		List<String> apis = Arrays.asList("tutu", "tata");
 		functionMetadata testFunction = new functionMetadata("02281400000a2a1e", "architecture", ".ctor-6_8746", "prototype", "comment", apis, "id");
 		result = myService.addFunctionMetadata(md5, crc32/*"1b3105ada011ed1053739d9c6028bfcc", "1272189678"*/, testFunction);
 		out.println("AddFunctionMetadata: " + result.toString());
+		functionMetadata testScanFunction = new functionMetadata("02281400000a2a1e", "architecture", apis);
+		result = myService.scanForSimilarFunction(md5, crc32, testScanFunction);
+		out.println("ScanForSimilarFunction: " + result.toString());
 	}
 }
