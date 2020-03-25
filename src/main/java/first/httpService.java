@@ -30,8 +30,8 @@ public class httpService {
 		this.apiUrl = apiUrl;
 		this.apiKey = apiKey;
 	}
-/*
-	public void testConnection() throws Exception {
+
+	public JSONObject testConnection() throws Exception {
 
 		TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
 			public java.security.cert.X509Certificate[] getAcceptedIssuers() {
@@ -67,19 +67,23 @@ public class httpService {
 			connection.setRequestMethod("GET");
 
 			Reader reader = new InputStreamReader(connection.getInputStream());
+			String retour="";
 			while (true) {
 				int ch = reader.read();
 				if (ch == -1) {
 					break;
 				}
-				System.out.print((char) ch);
+				retour+=(char)ch;
 			}
+			JSONObject result = new JSONObject(retour);
+			return result;
 		} catch (Exception e) {
 			e.printStackTrace();
-			System.out.println("Error when trying to connect to API");
+			JSONObject error = new JSONObject("{\"status\": \"notConnected\"}");
+			return error;
 		}
 	}
-*/
+	
 	public JSONObject checkInFirst(String md5, String crc32) throws Exception  {
 		
 		TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
