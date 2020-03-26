@@ -262,6 +262,91 @@ public class httpService {
     }
 
     /**
+     * deleteMetadata delete le metadata reference by the id
+     * @param metadata ID of the metadata
+     * @return Return the Json replied by the First Server.
+     * @throws JSONException
+     */
+    public JSONObject deleteMetadata(String metadata) throws JSONException {
+        try {
+            // Set the API Rest Contact
+            URL url = new URL(this.apiUrl + "metadata/delete/" + this.apiKey + "/" + metadata);
+            HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
+
+            // Setup GET Request
+            connection.setRequestMethod("GET");
+
+            // Return the answer from the Server in a JSON Format
+            return returnResponse(connection);
+        } catch (Exception e) {
+            e.printStackTrace();
+
+            // In case of exception, return the Error JSON
+            JSONObject error = new JSONObject("{\"failed\": true}");
+            return error;
+        }
+    }
+
+    /**
+     * getMetadataCreated Get all metadata created by the user
+     * @param page Page of the metadata list to grab. Put -1 to grab all pages
+     * @return Return the Json replied by the First Server.
+     * @throws JSONException
+     */
+    public JSONObject getMetadataCreated(int page) throws JSONException {
+        try {
+            // Set the API Rest Contact
+            URL url;
+            if (page == -1) {
+                url = new URL(this.apiUrl + "metadata/created/" + this.apiKey);
+            }
+            else {
+                url = new URL(this.apiUrl + "metadata/created/" + this.apiKey + "/" + String.valueOf(page));
+            }
+
+            HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
+
+            // Setup GET Request
+            connection.setRequestMethod("GET");
+
+            // Return the answer from the Server in a JSON Format
+            return returnResponse(connection);
+        } catch (Exception e) {
+            e.printStackTrace();
+
+            // In case of exception, return the Error JSON
+            JSONObject error = new JSONObject("{\"failed\": true}");
+            return error;
+        }
+    }
+
+    /**
+     * getArchitecture Return Know Architecture by the First Server
+     * @return Return the Json replied by the First Server.
+     * @throws JSONException
+     */
+    public JSONObject getArchitecture() throws JSONException {
+        try {
+            // Set the API Rest Contact
+            URL url = new URL(this.apiUrl + "sample/architectures/" + this.apiKey);
+
+            HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
+
+            // Setup GET Request
+            connection.setRequestMethod("GET");
+
+            // Return the answer from the Server in a JSON Format
+            return returnResponse(connection);
+        } catch (Exception e) {
+            e.printStackTrace();
+
+            // In case of exception, return the Error JSON
+            JSONObject error = new JSONObject("{\"failed\": true}");
+            return error;
+        }
+    }
+
+    /**
      *
      * @param url URL with the token of the First Server
      * @param body Body to add to the post
@@ -335,5 +420,9 @@ public class httpService {
         functionMetadatas.add(testFunction);
         result = myService.getMetadataHistory(functionMetadatas);
         out.println("GetMetadataHistory: " + result);
+        result =myService.getMetadataCreated(-1);
+        out.println("GetMetadataCreated: " + result);
+        result = myService.getArchitecture();
+        out.println("GetArchitecture: " + result);
     }
 }
