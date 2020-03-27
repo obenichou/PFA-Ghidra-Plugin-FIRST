@@ -58,20 +58,35 @@ import resources.Icons;
 //@formatter:on
 public class FirstPlugin extends ProgramPlugin  {
 
-	MyProvider provider;
-	static ArrayList<modelFunction > aList =    new ArrayList<modelFunction >(); 
-	static String url =new String();
-	static String apiKey = new String();            
+    /**
+     * The Provider.
+     */
+    MyProvider provider;
+    /**
+     * The A list.
+     */
+    static ArrayList<modelFunction > aList =    new ArrayList<modelFunction >();
+    /**
+     * The Url.
+     */
+    static String url =new String();
+    /**
+     * The Api key.
+     */
+    static String apiKey = new String();            
 	private static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
-	static Object[][] metadataList ;
+    /**
+     * The Metadata list.
+     */
+    static Object[][] metadataList ;
 	//  httpService myService = new httpService("https://louishusson.com/api/", "BFBFC6FC-4C84-4299-B2F6-7335C479810D");
- 
-	/**
-	 * Plugin constructor.
-	 * 
-	 * @param tool The plugin tool that this plugin is added to.
-	 */
-	public FirstPlugin(PluginTool tool) {
+
+    /**
+     * Plugin constructor.
+     *
+     * @param tool The plugin tool that this plugin is added to.
+     */
+    public FirstPlugin(PluginTool tool) {
 		super(tool, true, true);
 
 		// TODO: Customize provider (or remove if a provider is not desired)
@@ -83,7 +98,10 @@ public class FirstPlugin extends ProgramPlugin  {
 		provider.setHelpLocation(new HelpLocation(topicName, anchorName));		
 	}
 
-	@Override
+    /**
+     * Init.
+     */
+    @Override
 	public void init() {
 		super.init();
 
@@ -124,8 +142,14 @@ public class FirstPlugin extends ProgramPlugin  {
 	    private JMenuItem menuItemApplyMetadata;
 	    private JMenuItem menuItemUnApplyMetadata;
 	    private JMenuItem menuItemRemoveMetadata;
-	    
-		public MyProvider(Plugin plugin, String owner) {
+
+        /**
+         * Instantiates a new My provider.
+         *
+         * @param plugin the plugin
+         * @param owner  the owner
+         */
+        public MyProvider(Plugin plugin, String owner) {
 			super(plugin.getTool(), owner, owner);
 			buildPanel();
 			createActions();		
@@ -295,12 +319,22 @@ public class FirstPlugin extends ProgramPlugin  {
 			dockingTool.addLocalAction(this, action);
 		}
 
-		@Override
+        /**
+         * Gets component.
+         *
+         * @return the component
+         */
+        @Override
 		public JComponent getComponent() {
 			return panel;
 		}
-		
-	    public void actionPerformed(ActionEvent event) {	    	
+
+        /**
+         * Action performed.
+         *
+         * @param event the event
+         */
+        public void actionPerformed(ActionEvent event) {	    	
 	       
 	    	Object  object =  event.getSource();
 	        if (object ==loadFunctions)
@@ -393,8 +427,13 @@ public class FirstPlugin extends ProgramPlugin  {
 				exception.printStackTrace();				
 	        }  		        
 	    }
-	    
-	    public Object[][]  populateTable()
+
+        /**
+         * Populate table object [ ] [ ].
+         *
+         * @return the object [ ] [ ]
+         */
+        public Object[][]  populateTable()
 	  		{
 	  			
 	  			Object[][] fileList = new Object[aList.size()][6];
