@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package first;
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -116,15 +115,11 @@ public class FirstPlugin extends ProgramPlugin  {
 	    private JTextField NameMetadataField; 
 	    private JPopupMenu popupMenu;
 	    private JMenuItem menuItemAdd;
-	    private JMenuItem menuItemManage;
-
-	    private JMenuItem menuItemUnApply;
+	    private JMenuItem menuItemManage;	   
 	    private JMenuItem menuItemSimilarFunction;
-	    private JMenuItem menuItemColor;
-	    private JMenuItem menuItemRemove;
-	    private JMenuItem menuItemRemoveAll;
-	    private JButton buttonAddMetadata;
-	    
+	    private JMenuItem menuItemColor;	  
+	  
+	    private JButton buttonAddMetadata;	    
 	    private JPopupMenu popupMenuMetadata;
 	    private JMenuItem menuItemApplyMetadata;
 	    private JMenuItem menuItemUnApplyMetadata;
@@ -247,38 +242,26 @@ public class FirstPlugin extends ProgramPlugin  {
 		 
 		// Customize GUI
 		private void buildPanel() {
-			 panel = new JPanel(new BorderLayout());
-			 popupMenu = new JPopupMenu();
-			 menuItemAdd = new JMenuItem("Add Function Metadata");
-			 menuItemManage =new JMenuItem("Manage Metadata");
-			
-			 menuItemUnApply = new JMenuItem("UnApply Metadata");
-			 menuItemSimilarFunction = new JMenuItem("Scan For Similar Function");
-			 menuItemColor = new JMenuItem("Color in Ghidra");
-			// menuItemColor.setEnabled(false);
-			 menuItemRemove = new JMenuItem("Remove");
-			 menuItemRemoveAll = new JMenuItem("Remove All");			 
+			panel = new JPanel(new BorderLayout());
+			popupMenu = new JPopupMenu();
+			menuItemAdd = new JMenuItem("Add Function Metadata");
+			menuItemManage =new JMenuItem("Manage Metadata");
+			menuItemSimilarFunction = new JMenuItem("Scan For Similar Function");
+			menuItemColor = new JMenuItem("Color in Ghidra");
+			menuItemColor.setEnabled(false);
 	        menuItemAdd.addActionListener(this);
-	        menuItemManage.addActionListener(this);
-	     
-	        menuItemUnApply.addActionListener(this);
+	        menuItemManage.addActionListener(this);	 
 	        menuItemSimilarFunction.addActionListener(this);
-	        menuItemColor.addActionListener(this);
-	        menuItemRemove.addActionListener(this);
-	        menuItemRemoveAll.addActionListener(this);	        
+	        menuItemColor.addActionListener(this);	
 			popupMenu.add(menuItemAdd);
-			popupMenu.add(menuItemManage);
+			popupMenu.add(menuItemManage);			
 			
-			popupMenu.add(menuItemUnApply);
 			popupMenu.add(menuItemSimilarFunction);
-			popupMenu.add(menuItemColor);
-			popupMenu.add(menuItemRemove);
-			popupMenu.add(menuItemRemoveAll);		
+			popupMenu.add(menuItemColor);	
 			panel.setBorder(BorderFactory.createTitledBorder( BorderFactory.createEtchedBorder(), "Functions List", TitledBorder.CENTER, TitledBorder.TOP));
 			loadFunctions = new JButton("Load Functions");
 			loadFunctions.setBounds(50,100,95,30);  
-			loadFunctions.addActionListener(this);	
-			
+			loadFunctions.addActionListener(this);				
 			populateTable();
 			String[] header = { "Id", "Name", "Opcode","Prototype","Comment"};	
 			Object[][] fileList = populateTable();
@@ -372,10 +355,8 @@ public class FirstPlugin extends ProgramPlugin  {
         	else if (object == menuItemRemoveMetadata) {
         		RemoveMetadata();   
         		
-        	}        	
-        	else if (object == menuItemUnApply) {
-        		
-        	}
+        	}       	
+        	
 	        else if (object == menuItemSimilarFunction) {
 	        	Msg.showInfo(getClass(), panel, "Action", "Scan For Similar Function!");
 	        } 
@@ -387,14 +368,7 @@ public class FirstPlugin extends ProgramPlugin  {
 					e.printStackTrace();
 				}      
 	        }
-	        else if (object == menuItemRemove) {
-	        	removeCurrentRow();
-	        }
-	        else if (object == menuItemRemoveAll) {
-	        	removeAllRows(); 
-	        }        
-	        
-	    }	   
+	    }
 	    
 	    private void testConnexion() {	    	
 	    	url = new String (Label1Field.getText());
@@ -502,9 +476,8 @@ public class FirstPlugin extends ProgramPlugin  {
        			  Msg.showInfo(getClass(), panel, "Custom Action", "Add the metadata to the function failed ");  
        		   }
        		   else
-       			
-       			   Msg.showInfo(getClass(), panel, "Custom Action", "Add the metadata to the function succeeded");  
-       		closePopup();
+       			   Msg.showInfo(getClass(), panel, "Custom Action", "Add the metadata to the function succeeded");
+       		   closePopup();
 		    }
 	    
 	    private void ApplyMetadata() {
@@ -539,23 +512,8 @@ public class FirstPlugin extends ProgramPlugin  {
 	    	httpService myService = new httpService(url, apiKey);
 	    	Object[] rowMetadata = metadataList[selectedRow];	    	
 	    	String id = (String) rowMetadata[4];
-	    	JSONObject  jsonResponse = myService.deleteMetadata(id);
-	    
-	    	Msg.showInfo(getClass(), panel, "Custom Action", "Removing metadata from First : " +  jsonResponse.get("deleted").toString());
-	    	
-	    }
-	    
-	    private void removeCurrentRow() {
-		        int selectedRow = table.getSelectedRow();
-		        tableModel.removeRow(selectedRow);
-		    }
-	    
-	    private void removeAllRows() {
-		        int rowCount = tableModel.getRowCount();
-		        for (int i = 0; i < rowCount; i++) {
-		            tableModel.removeRow(0);
-		        }
-	    }
-		    
+	    	JSONObject  jsonResponse = myService.deleteMetadata(id);	    
+	    	Msg.showInfo(getClass(), panel, "Custom Action", "Removing metadata from First : " +  jsonResponse.get("deleted").toString());	    	
+	    }	  
 	}
 }
