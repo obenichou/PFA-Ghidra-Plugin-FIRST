@@ -4,20 +4,30 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
  
 import javax.swing.JTable;
- 
+
 /**
  * A mouse listener for a JTable component.
- * @author www.codejava.neet
  *
+ * @author www.codejava.neet
  */
 public class TableMouseListener extends MouseAdapter {
      
     private JTable table;
-     
+
+    /**
+     * Instantiates a new Table mouse listener.
+     *
+     * @param table the table
+     */
     public TableMouseListener(JTable table) {
         this.table = table;
     }
-     
+
+    /**
+     * Mouse pressed.
+     *
+     * @param event the event
+     */
     @Override
     public void mousePressed(MouseEvent event) {
         // selects the row at which point the mouse is clicked
