@@ -10,25 +10,50 @@ import org.json.*;
  */
 public class functionMetadata {
 
+    /**
+     * The Opcodes.
+     */
     public String opcodes;
+    /**
+     * The Architecture.
+     */
     public String architecture;
+    /**
+     * The Name.
+     */
     public String name;
+    /**
+     * The Prototype.
+     */
     public String prototype;
+    /**
+     * The Comment.
+     */
     public String comment;
+    /**
+     * The Apis.
+     */
     public List<String> apis;
+    /**
+     * The Id.
+     */
     public String id;
+    /**
+     * The Json object.
+     */
     public JSONObject jsonObject;
 
     /**
      * Class Builder full
-     * @param opcodes
-     * @param architecture
-     * @param name
-     * @param prototype
-     * @param comment
-     * @param apis
-     * @param id
-     * @throws JSONException
+     *
+     * @param opcodes      OPCODE of the function
+     * @param architecture Architecture where the function is running
+     * @param name         name of the metadata
+     * @param prototype    prototype of the function
+     * @param comment      Comment to the metadata
+     * @param apis         ?
+     * @param id           id for the link
+     * @throws JSONException the json exception
      */
     public functionMetadata(String opcodes, String architecture, String name, String prototype, String comment, List<String> apis, String id) throws JSONException {
         this.opcodes=opcodes;
@@ -38,6 +63,7 @@ public class functionMetadata {
         this.comment=comment;
         this.apis=apis;
         this.id=id;
+        // FIXME
         if(apis ==null)
         {
         	this.apis =  new ArrayList<String>();
@@ -49,13 +75,14 @@ public class functionMetadata {
 
     /**
      * Class Builder without the optional id
-     * @param opcodes
-     * @param architecture
-     * @param name
-     * @param prototype
-     * @param comment
-     * @param apis
-     * @throws JSONException
+     *
+     * @param opcodes      OPCODE of the function
+     * @param architecture Architecture where the function is running
+     * @param name         name of the metadata
+     * @param prototype    prototype of the function
+     * @param comment      Comment to the metadata
+     * @param apis         ?
+     * @throws JSONException the json exception
      */
     public functionMetadata(String opcodes, String architecture, String name, String prototype, String comment, List<String> apis) throws JSONException {
         this(opcodes, architecture, name, prototype, comment, apis, "");
@@ -63,10 +90,11 @@ public class functionMetadata {
 
     /**
      * Class Builder without the optionals name, prototype, comment, id
-     * @param opcodes
-     * @param architecture
-     * @param apis
-     * @throws JSONException
+     *
+     * @param opcodes      OPCODE of the function
+     * @param architecture Architecture where the function is running
+     * @param apis         ?
+     * @throws JSONException the json exception
      */
     public functionMetadata(String opcodes, String architecture, List<String> apis) throws JSONException {
         this(opcodes, architecture, "", "", "", apis, "");
