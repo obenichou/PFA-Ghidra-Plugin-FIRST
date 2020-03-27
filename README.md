@@ -7,7 +7,7 @@ The objectif of this program is to link **Ghidra** (From **NSA**) with a **First
 The program has been develop with the following version and was not verified with anterior or superior version.
 - Gradle 6.2.2
 - Ghidra 9.1.2
-- Java OpenJDK 11.0.6
+- Java 13.0.2
 - Eclipse 2019-12
 
 ## Functionalities
