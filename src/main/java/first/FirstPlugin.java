@@ -454,9 +454,9 @@ public class FirstPlugin extends ProgramPlugin {
             JSONObject jsonResponse = myService.addFunctionMetadata(md5Opcode, crc32Opcode, fm);
 
             if ((boolean) jsonResponse.get("failed")) {
-                Msg.showInfo(getClass(), panel, "Custom Action", "Add the metadata to the function failed ");
+                Msg.showInfo(getClass(), panel, "Add the metadata", "Add the metadata to the function failed ");
             } else
-                Msg.showInfo(getClass(), panel, "Custom Action", "Add the metadata to the function succeeded");
+                Msg.showInfo(getClass(), panel, "Add the metadata", "Add the metadata to the function succeeded");
             closePopup();
         }
 
@@ -469,7 +469,7 @@ public class FirstPlugin extends ProgramPlugin {
             String crc32OpCode = calculCrc32(opcode);
             String id = (String) rowMetadata[4];
             JSONObject jsonResponse = myService.applyMetadata(md5Opcode, crc32OpCode, id);
-            Msg.showInfo(getClass(), panel, "Custom Action", "Applying metadata to the function : " + jsonResponse.get("results").toString());
+            Msg.showInfo(getClass(), panel, "Applying metadata", "Applying metadata to the function : " + jsonResponse.get("results").toString());
 
 
         }
@@ -482,7 +482,7 @@ public class FirstPlugin extends ProgramPlugin {
             String crc32OpCode = calculCrc32(opcode);
             String id = (String) rowMetadata[4];
             JSONObject jsonResponse = myService.unapplyMetadata(md5Opcode, crc32OpCode, id);
-            Msg.showInfo(getClass(), panel, "Custom Action", "Unapplying metadata to the function : " + jsonResponse.get("results").toString());
+            Msg.showInfo(getClass(), panel, "Unapplying metadata", "Unapplying metadata to the function : " + jsonResponse.get("results").toString());
         }
 
         private void RemoveMetadata() {
@@ -491,7 +491,16 @@ public class FirstPlugin extends ProgramPlugin {
             Object[] rowMetadata = metadataList[selectedRow];
             String id = (String) rowMetadata[4];
             JSONObject jsonResponse = myService.deleteMetadata(id);
-            Msg.showInfo(getClass(), panel, "Custom Action", "Removing metadata from First : " + jsonResponse.get("deleted").toString());
+            if(jsonResponse.get("deleted").toString().equalsIgnoreCase("true"))
+            {
+            	Msg.showInfo(getClass(), panel, "Removing metadata", "Removing metadata from First : Succeeded ");
+            	tableMetadataModel.removeRow(selectedRow);
+            }
+            else
+            {
+            	Msg.showError(getClass(), panel, "Removing metadata", "Removing metadata from First : failed ");
+            }            	
+            
         }
     }
 }
