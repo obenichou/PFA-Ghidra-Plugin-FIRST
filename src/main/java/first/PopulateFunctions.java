@@ -21,18 +21,39 @@ import ghidra.util.Msg;
 import ghidra.util.exception.CancelledException;
 import ghidra.util.exception.VersionException;
 
+/**
+ * Populate functions is retrieving the functions of the choosen program
+ */
 public class PopulateFunctions extends GhidraScript {
 
+	/**
+	 * The Service.
+	 */
 	FidService service;
+
+	/**
+	 * Gets funtions.
+	 *
+	 * @return the funtions
+	 */
 	public  ArrayList<modelFunction > getFuntions()
 	{
 		return aList;
-	}	  
-    // Here aList is an ArrayList of ArrayLists 
+	}
+
+	/**
+	 * Here aList is an ArrayList of ArrayLists
+	 */
+//
     ArrayList<modelFunction > aList =  
-              new ArrayList<modelFunction>(); 	 
-           
-              
+              new ArrayList<modelFunction>();
+
+
+	/**
+	 * Run.
+	 *
+	 * @throws Exception the exception
+	 */
 	@Override
 	protected void run() throws Exception {
 		service = new FidService();
@@ -109,18 +130,53 @@ public class PopulateFunctions extends GhidraScript {
 			findPrograms(programs, domainFolder);
 		}
 	}
-	
+
+	/**
+	 * The type Model function.
+	 */
 	public class modelFunction{
 
+		/**
+		 * The Idfunction.
+		 */
 		public String  idfunction;
-		public String namefunction;	
+		/**
+		 * The Namefunction.
+		 */
+		public String namefunction;
+		/**
+		 * The Bodyfunction.
+		 */
 		public AddressSetView bodyfunction;
-		public String prototypefunction;	
-		public String comment;	
+		/**
+		 * The Prototypefunction.
+		 */
+		public String prototypefunction;
+		/**
+		 * The Comment.
+		 */
+		public String comment;
+		/**
+		 * The Architecture.
+		 */
 		public Architecture  architecture;
 
+		/**
+		 * The Op code.
+		 */
 		public String opCode;
-		
+
+		/**
+		 * Instantiates a new Model function.
+		 *
+		 * @param Fid               the fid
+		 * @param functionName      the function name
+		 * @param bodyFunction      the body function
+		 * @param prototypeFunction the prototype function
+		 * @param commentFunction   the comment function
+		 * @param architecture      the architecture
+		 * @param opcode            the opcode
+		 */
 		public modelFunction(String Fid, String functionName, AddressSetView bodyFunction, String prototypeFunction, String commentFunction, Architecture architecture, String opcode){
 			this.idfunction =Fid;
 			this.namefunction = functionName;
