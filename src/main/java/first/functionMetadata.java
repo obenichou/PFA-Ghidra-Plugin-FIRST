@@ -1,5 +1,6 @@
 package first;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.json.*;
 
@@ -37,8 +38,13 @@ public class functionMetadata {
         this.comment=comment;
         this.apis=apis;
         this.id=id;
-
+        if(apis ==null)
+        {
+        	this.apis =  new ArrayList<String>();
+        	this.apis.add("test"); 
+        }
         this.jsonBuilder();
+        
     }
 
     /**
@@ -76,7 +82,7 @@ public class functionMetadata {
         jsonObject.put("architecture", this.architecture);
         if (this.name != "") { jsonObject.put("name", this.name);}
         if (this.prototype!= "") { jsonObject.put("prototype", this.prototype);}
-        if (this.comment != "") { jsonObject.put("comment", this.comment);}
+        if (this.comment != "") { jsonObject.put("comment", this.comment);}        
         jsonObject.put("apis", this.apis);
         if (this.id != "") {jsonObject.put("id", this.id);}
 
